@@ -1,0 +1,64 @@
+import sys
+import time
+import matplotlib.pyplot as plt
+
+# Meningkatkan batas rekursi (opsional, gunakan hanya jika ingin eksperimen dengan input panjang)
+sys.setrecursionlimit(2000)
+
+# Mapping kode ke nilai angka
+kode_to_value = {
+    "R": 1, "E": 2, "Y": 4, "H": 0,
+    "1": 5, "2": 7, "0": 3, "3": 6, "4": 8, "5": 9
+}
+
+# Fungsi iteratif untuk menghitung harga barang berdasarkan kode
+def hitung_harga_iteratif(kode):
+    harga = ""
+    for karakter in kode:
+        harga += str(kode_to_value.get(karakter, 0))  # Nilai default 0 jika karakter tidak ditemukan
+    return int(harga)
+
+# Fungsi rekursif untuk menghitung harga barang berdasarkan kode
+def hitung_harga_rekursif(kode, index=0, hasil=""):
+    if index == len(kode):
+        return int(hasil)
+    return hitung_harga_rekursif(kode, index + 1, hasil + str(kode_to_value.get(kode[index], 0)))
+
+# Membuat kode alfanumerik dengan panjang berbeda
+def generate_kode(panjang):
+    kode = "REYH12" * (panjang // 6) + "REYH12"[:panjang % 6]
+    return kode
+
+# Perbandingan waktu eksekusi
+panjang_kode = [10, 50, 100, 500, 800]  # Batasi panjang maksimum untuk rekursif agar aman
+waktu_iteratif = []
+waktu_rekursif = []
+
+for p in panjang_kode:
+    kode = generate_kode(p)
+    
+    # Mengukur waktu iteratif
+    start = time.time()
+    hitung_harga_iteratif(kode)
+    end = time.time()
+    waktu_iteratif.append(end - start)
+    
+    # Mengukur waktu rekursif hanya jika panjang aman
+    if p <= 1000:  # Batas aman rekursif
+        start = time.time()
+        hitung_harga_rekursif(kode)
+        end = time.time()
+        waktu_rekursif.append(end - start)
+    else:
+        waktu_rekursif.append(None)  # Tandai bahwa rekursif tidak dihitung
+
+# Membuat diagram perbandingan waktu
+plt.figure(figsize=(10, 6))
+plt.plot(panjang_kode, waktu_iteratif, label='Iteratif', marker='o')
+plt.plot(panjang_kode[:len(waktu_rekursif)], waktu_rekursif, label='Rekursif', marker='o', linestyle='--')
+plt.title('Perbandingan Running Time Iteratif vs Rekursif')
+plt.xlabel('Panjang Kode (karakter)')
+plt.ylabel('Waktu Eksekusi (detik)')
+plt.legend()
+plt.grid()
+plt.show()
