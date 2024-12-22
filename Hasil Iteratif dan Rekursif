@@ -1,0 +1,38 @@
+kode_to_value = {
+    "R": 1, "E": 2, "Y": 4, "H": 0,
+    "1": 5, "2": 7, "0": 3, "3": 6, "4": 8, "5": 9
+}
+
+def hitung_harga_iteratif(kode):
+    harga = ""
+    for karakter in kode:
+        harga += str(kode_to_value.get(karakter, 0)) 
+    return int(harga)
+
+def hitung_harga_rekursif(kode, index=0, hasil=""):
+    if index == len(kode):
+        return int(hasil)
+    return hitung_harga_rekursif(kode, index + 1, hasil + str(kode_to_value.get(kode[index], 0)))
+
+barang = [
+    {"nama": "Barang A", "kode": "21HER"},
+    {"nama": "Barang B", "kode": "REYH12"},
+    {"nama": "Barang C", "kode": "H21RY"},
+    {"nama": "Barang D", "kode": "ERYH2"}
+]
+
+for item in barang:
+    item["harga"] = hitung_harga_iteratif(item["kode"])
+
+barang_terurut = sorted(barang, key=lambda x: x["harga"])
+
+print("Barang terurut berdasarkan harga (metode iteratif):")
+for item in barang_terurut:
+    print(f"Nama: {item['nama']}, Kode: {item['kode']}, Harga: {item['harga']}")
+
+for item in barang:
+    item["harga_rekursif"] = hitung_harga_rekursif(item["kode"])
+
+print("\nHasil perhitungan harga (metode rekursif):")
+for item in barang:
+    print(f"Nama: {item['nama']}, Kode: {item['kode']}, Harga Rekursif: {item['harga_rekursif']}")
