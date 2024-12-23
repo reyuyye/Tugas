@@ -6,7 +6,7 @@ kode_to_value = {
 def hitung_harga_iteratif(kode):
     harga = ""
     for karakter in kode:
-        harga += str(kode_to_value.get(karakter, 0)) 
+        harga += str(kode_to_value.get(karakter, 0))
     return int(harga)
 
 def hitung_harga_rekursif(kode, index=0, hasil=""):
@@ -21,10 +21,20 @@ barang = [
     {"nama": "Barang D", "kode": "ERYH2"}
 ]
 
+def insertion_sort(data, key):
+    for i in range(1, len(data)):
+        current_item = data[i]
+        j = i - 1
+        while j >= 0 and data[j][key] > current_item[key]:
+            data[j + 1] = data[j]
+            j -= 1
+        data[j + 1] = current_item
+    return data
+
 for item in barang:
     item["harga"] = hitung_harga_iteratif(item["kode"])
 
-barang_terurut = sorted(barang, key=lambda x: x["harga"])
+barang_terurut = insertion_sort(barang, "harga")
 
 print("Barang terurut berdasarkan harga (metode iteratif):")
 for item in barang_terurut:
