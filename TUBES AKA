@@ -1,0 +1,207 @@
+import time
+import matplotlib.pyplot as plt
+
+code_mapping = {
+    "R": 1, "Y": 2, "Z": 3, "2": 4, "1": 5,
+    "L": 6, "I": 7, "P": 8, "H": 9, "5": 0
+}
+reverse_mapping = {v: k for k, v in code_mapping.items()}
+
+def generate_item_code(price):
+    return "".join(reverse_mapping[int(digit)] for digit in str(price))
+
+items = [
+    {"name": "Bor Listrik", "price": 235899, "code": generate_item_code(235899)},
+    {"name": "Lampu LED", "price": 45172, "code": generate_item_code(45172)},
+    {"name": "Saklar", "price": 21375, "code": generate_item_code(21375)},
+    {"name": "Kabel Listrik", "price": 86485, "code": generate_item_code(86485)},
+    {"name": "Paku", "price": 5000, "code": generate_item_code(5000)},
+    {"name": "Palu", "price": 67890, "code": generate_item_code(67890)},
+    {"name": "Gergaji", "price": 55499, "code": generate_item_code(55499)},
+    {"name": "Sekop", "price": 62500, "code": generate_item_code(62500)},
+    {"name": "Tangga Lipat", "price": 325999, "code": generate_item_code(325999)},
+    {"name": "Cangkul", "price": 102987, "code": generate_item_code(102987)}
+]
+
+def display_items():
+    print("=" * 50)
+    print(f"{'Kode':<10} {'Nama Barang':<20} {'Harga':<15}")
+    print("=" * 50)
+    for item in items:
+        print(f"{item['code']:<10} {item['name']:<20} {item['price']:<15}")
+    print("=" * 50)
+
+def add_item():
+    name = input("Masukkan nama barang: ")
+    price = int(input("Masukkan harga barang: "))
+    code = generate_item_code(price)
+    items.append({"name": name, "price": price, "code": code})
+    print(f"Barang dengan nama '{name}', harga '{price}', dan kode '{code}' berhasil ditambahkan.")
+    display_items()
+
+def insertion_sort(items):
+    for i in range(1, len(items)):
+        key = items[i]
+        j = i - 1
+        while j >= 0 and items[j]['price'] > key['price']:
+            items[j + 1] = items[j]
+            j -= 1
+        items[j + 1] = key
+    return items
+
+def sort_items_by_price():
+    global items
+    items = insertion_sort(items)
+    print("Data berhasil diurutkan berdasarkan harga.")
+    display_items()
+
+def search_iterative(code):
+    for item in items:
+        delay = (item['price'] // 1000) + len(item['code']) * 10
+        time.sleep(delay / 1000)
+        if item['code'] == code:
+            return item
+    return None
+
+def search_recursive(code, index=0):
+    if index >= len(items):
+        return None
+    item = items[index]
+    delay = (item['price'] // 1000) + len(item['code']) * 10
+    time.sleep(delay / 1000)
+    if item['code'] == code:
+        return item
+    return search_recursive(code, index + 1)
+
+def compare_execution_times(selected_codes=None):
+    print("\nPerbandingan Waktu Eksekusi: Iteratif vs Rekursif")
+    iterative_times = []
+    recursive_times = []
+    item_labels = []
+
+    sorted_items = sorted(items, key=lambda x: x['price'])
+
+    if selected_codes:
+        for code in selected_codes:
+            item_labels.append(code)
+            start_iterative = time.time()
+            search_iterative(code)
+            end_iterative = time.time()
+
+            start_recursive = time.time()
+            search_recursive(code)
+            end_recursive = time.time()
+
+            iterative_times.append(end_iterative - start_iterative)
+            recursive_times.append(end_recursive - start_recursive)
+
+        print("\n{:<12} {:<20} {:<20}".format("Kode Barang", "Waktu Iteratif", "Waktu Rekursif"))
+        print("=" * 54)
+        for i, code in enumerate(selected_codes):
+            print(f"{code:<12} {iterative_times[i]:<20.6f} {recursive_times[i]:<20.6f}")
+
+    else:
+        for item in sorted_items:
+            item_labels.append(item['code'])
+            start_iterative = time.time()
+            search_iterative(item['code'])
+            end_iterative = time.time()
+
+            start_recursive = time.time()
+            search_recursive(item['code'])
+            end_recursive = time.time()
+
+            iterative_times.append(end_iterative - start_iterative)
+            recursive_times.append(end_recursive - start_recursive)
+
+        print("\n{:<12} {:<20} {:<20}".format("Kode Barang", "Waktu Iteratif", "Waktu Rekursif"))
+        print("=" * 54)
+        for idx, item in enumerate(sorted_items):
+            print(f"{item['code']:<12} {iterative_times[idx]:<20.6f} {recursive_times[idx]:<20.6f}")
+
+    show_graph = input("Apakah Anda ingin melihat grafik perbandingan waktu eksekusi? (y/n): ").lower()
+    if show_graph == 'y':
+        offset = 0.0005
+        plt.figure(figsize=(10, 6))
+        plt.plot(item_labels, [t + offset for t in iterative_times], label="Iteratif", color="blue", marker="o")
+        plt.plot(item_labels, recursive_times, label="Rekursif", color="red", marker="x")
+        plt.title("Perbandingan Waktu Eksekusi Iteratif vs Rekursif")
+        plt.xlabel("Kode Barang")
+        plt.ylabel("Waktu Eksekusi (detik)")
+        plt.legend()
+        plt.grid()
+        plt.xticks(rotation=45)
+        plt.ylim(min(min(iterative_times), min(recursive_times)) - 0.001,
+                 max(max(iterative_times), max(recursive_times)) + 0.001)
+        plt.tight_layout()
+        plt.show()
+
+def main_menu():
+    display_items()
+    while True:
+        print("\nMenu:")
+        print("1. Tambah Data Barang")
+        print("2. Urutkan Barang")
+        print("3. Waktu Eksekusi Pencarian Barang")
+        print("4. Waktu Eksekusi Kode/Harga")
+        print("5. Keluar")
+        choice = input("Pilih menu: ")
+
+        if choice == "1":
+            add_item()
+        elif choice == "3":
+            while True:
+                code = input("Masukkan kode barang: ")
+
+                start_iterative = time.time()
+                search_iterative(code)
+                end_iterative = time.time()
+                iterative_time = end_iterative - start_iterative
+
+                start_recursive = time.time()
+                search_recursive(code)
+                end_recursive = time.time()
+                recursive_time = end_recursive - start_recursive
+
+                print("\nHasil Pencarian:")
+                print("=" * 50)
+                print(f"{'Kode Barang':<12} {'Waktu Iteratif (detik)':<20} {'Waktu Rekursif (detik)':<20}")
+                print("=" * 50)
+                print(f"{code:<12} {iterative_time:<20.6f} {recursive_time:<20.6f}")
+                print("=" * 50)
+
+                show_graph = input("Apakah Anda ingin melihat grafik waktu pencarian? (y/n): ").lower()
+                if show_graph == 'y':
+                    plt.figure(figsize=(8, 5))
+                    plt.plot(["Iteratif", "Rekursif"], [iterative_time, recursive_time], label="Iteratif", color="blue", marker="o", linestyle="-")
+                    plt.plot(["Iteratif", "Rekursif"], [iterative_time, recursive_time], label="Rekursif", color="red", marker="x", linestyle="--")
+                    plt.title("Perbandingan Waktu Pencarian: Iteratif vs Rekursif")
+                    plt.ylabel("Waktu Eksekusi (detik)")
+                    plt.legend()
+                    plt.grid(axis='y', linestyle='--', alpha=0.7)
+                    plt.tight_layout()
+                    plt.show()
+
+                another_search = input("Apakah ingin mencari barang lainnya? (y/n): ").lower()
+                if another_search != 'y':
+                    break
+        elif choice == "2":
+            sort_items_by_price()
+        elif choice == "4":
+            compare_choice = input("Pilih opsi (1: seluruh data, 2: data tertentu): ")
+            if compare_choice == "1":
+                compare_execution_times()
+            elif compare_choice == "2":
+                code1 = input("Masukkan kode barang pertama: ")
+                code2 = input("Masukkan kode barang kedua: ")
+                compare_execution_times([code1, code2])
+            else:
+                print("Pilihan tidak valid.")
+        elif choice == "5":
+            print("Keluar dari program.")
+            break
+        else:
+            print("Pilihan tidak valid. Silakan coba lagi.")
+
+if __name__ == "__main__":
+    main_menu()
